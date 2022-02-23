@@ -1,8 +1,8 @@
-# import sys
-# from pathlib import Path
+import sys
+from pathlib import Path
 
-# origin = Path(__file__).parent.parent
-# sys.path.append(str(origin))
+origin = Path(__file__).parent.parent
+sys.path.append(str(origin))
 
 import torch.nn as nn
 from ljh.utils import *
@@ -47,10 +47,4 @@ class YOLOv1(nn.Module):
         self.model = nn.Sequential(*layers)
 
     def forward(self, x):
-        return self.fcs(torch.flatten(self.darknet(x), start_dim=1))
-
-
-def test():
-    model = YOLOv1()
-    x = torch.randn((1, 448, 448, 3))
-    print(model(x).shape)
+        return self.model(x)

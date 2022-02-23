@@ -2,7 +2,8 @@
 S, B, C = 7, 2, 20
 
 network_config = [
-    # padding = (out_size * stride - in_size + kernel_size) // 2
+    # ("conv", out_channels, kernel_size, stride, padding)
+    #    where padding = (out_size * stride - in_size + kernel_size) // 2
     ("conv", 64, 7, 2, 3),
     ("maxpool", 2, 2),
     ("conv", 192, 3, 1, 1),
