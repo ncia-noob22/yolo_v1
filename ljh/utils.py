@@ -1,15 +1,14 @@
-# import sys
-# from pathlib import Path
+import sys
+from pathlib import Path
 
-# origin = Path(__file__).parent.parent
-# sys.path.append(str(origin))
+ljh_dir = str(Path(__file__).parent)
+sys.path.append(ljh_dir)
 
 import torch
-import torch.nn as nn
-from ljh.config import *
+from config import *
 
 
-def calculate_IOU(boxes_pred, boxes_true):
+def calculate_IoU(boxes_pred, boxes_true):
     pass
 
 
@@ -19,11 +18,3 @@ def do_NMS(bboxes, ths, ths_iou):
 
 def calculate_mAP(boxes_pred, boxes_true, ths_iou):
     pass
-
-
-class Loss(nn.Module):
-    def __init__(self, lambda_coord, lambda_noobj):
-        super().__init__()
-
-    def forward(self, pred, target):
-        pass
