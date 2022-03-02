@@ -4,3 +4,5 @@ num_class: 20
 
 lambda_coord: 5
 lambda_noobj: 0.5
+
+dir_data: '~/data/torch/VOCdetection'
