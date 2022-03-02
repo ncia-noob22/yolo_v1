@@ -24,7 +24,7 @@ def main():
 
     trainloader, testloader = get_dataloaders(**config)
 
-    model = YOLOv1()
+    model = YOLOv1(**config)
     if path_pretrained:
         model.load_state_dict(path_pretrained)
 
@@ -45,18 +45,18 @@ def main():
         else:
             lr = 1e-4
 
-        opt = optim.SGD(model.parameters(), lr, **config)
+        opt = optim.SGD(model.parameters(), lr=lr, momentum=config["momentum"], weight_decay=config["weight_decay"])
 
-        boxes_pred, boxes_true = get_bboxes(trainloader, model, **config, device=device)
+#        boxes_pred, boxes_true = get_bboxes(trainloader, model, **config, device=device)
 
-        mean_avg_precision = calculate_mAP(boxes_pred, boxes_true, **config)
-        print(f"mAP is {mean_avg_precision} for {epoch}th epoch")
+#        mean_avg_precision = calculate_mAP(boxes_pred, boxes_true, **config)
+#        print(f"mAP is {mean_avg_precision} for {epoch}th epoch")
 
         train(trainloader, model, opt, loss, device)
 
-        if mean_avg_precision > max_mean_avg_precision:
-            max_mean_avg_precision = mean_avg_precision
-            torch.save(model.state_dict(), "output/max_mAP.pt")
+#        if mean_avg_precision > max_mean_avg_precision:
+#            max_mean_avg_precision = mean_avg_precision
+#            torch.save(model.state_dict(), "output/max_mAP.pt")
 
 
 if __name__ == "__main__":

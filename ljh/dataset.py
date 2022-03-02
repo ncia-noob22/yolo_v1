@@ -15,7 +15,7 @@ def get_dataloaders(dir_data, year, batch_size, **kwargs):
         dir_data, year=str(year), image_set="val", transform=transform
     )
 
-    trainloader = data.DataLoader(trainset, batch_size=batch_size, shffle=True)
-    validloader = data.DataLoader(validset, batch_size=batch_size, shffle=True)
+    trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+    validloader = data.DataLoader(validset, batch_size=batch_size, shuffle=True)
 
     return trainloader, validloader
