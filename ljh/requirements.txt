@@ -1,2 +1,6 @@
 numpy==1.22.2
+pandas==1.4.1
+pillow==9.0.1
 torch==1.10.2
+torchsummary==1.5.1
+black
