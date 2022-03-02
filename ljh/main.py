@@ -24,7 +24,7 @@ def main():
 
     trainloader, testloader = get_dataloaders(**config)
 
-    model = YOLOv1(**config)
+    model = YOLOv1(**config).to(device)
     if path_pretrained:
         model.load_state_dict(path_pretrained)
 

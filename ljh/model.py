@@ -77,5 +77,5 @@ if __name__ == "__main__":
     with open("config.yaml", "r") as f:
         config = yaml.load(f, yaml.FullLoader)
 
-    model = YOLOv1(**config)
-    print(torchsummary.summary(model, (3, 448, 448)))
+    model = YOLOv1(**config).to('cuda:0')
+    print(torchsummary.summary(model, (3, 448, 448),device='cuda'))
