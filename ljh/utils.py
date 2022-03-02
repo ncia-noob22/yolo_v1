@@ -1,79 +1,45 @@
 import torch
-from torch.nn import Module
-import torch.nn as nn
 
 
-class Loss(Module):
-    def __init__(self, S, B, C, lambda_coord, lambda_noobj):
-        super().__init__()
-        self.sse = nn.MSELoss(reduction="sum")
+def calculate_IoU(bboxes1, bboxes2):
+    x_minof1 = bboxes1[..., 0] - bboxes1[..., 2] / 2
+    x_maxof1 = bboxes1[..., 0] + bboxes1[..., 2] / 2
+    y_minof1 = bboxes1[..., 1] - bboxes1[..., 3] / 2
+    y_maxof1 = bboxes1[..., 1] + bboxes1[..., 3] / 2
 
-        self.S = S
-        self.B = B
-        self.C = C
-        self.lambda_coord = lambda_coord
-        self.lambda_noobj = lambda_noobj
+    x_minof2 = bboxes2[..., 0] - bboxes2[..., 2] / 2
+    x_maxof2 = bboxes2[..., 0] + bboxes2[..., 2] / 2
+    y_minof2 = bboxes2[..., 1] - bboxes2[..., 3] / 2
+    y_maxof2 = bboxes2[..., 1] + bboxes2[..., 3] / 2
 
-    def forward(self, pred, true):
-        pred = pred.reshape(  # N ✕ (...) -> N ✕ S^2 ✕ (C + 5B)
-            -1, self.S**2, self.C + 5 * self.B
-        )
+    x_maxofmins = torch.max(x_minof1, x_minof2)
+    y_maxofmins = torch.max(y_minof1, y_minof2)
+    x_minofmaxes = torch.min(x_maxof1, x_maxof2)
+    y_minofmaxes = torch.min(y_maxof1, y_maxof2)
 
-        ious = [
-            calculate_IoU(
-                pred[..., self.C + (1 + 5 * b) : self.C + (5 + 5 * b)],
-                true[..., self.C + 1 : self.C + 5],
-            )
-            for b in range(self.B)
-        ]
-        ious = torch.cat([iou.unsqueeze(0) for iou in ious])
-
-        iou_max, idx_iou_max = torch.max(ious, dim=0)
-        is_obj_in = true[..., self.C]
-
-        # Localization Loss
-        coord_pred = (
-            idx_iou_max
-            * pred[..., self.C + (1 + 5 * idx_iou_max) : self.C + (5 + 5 * idx_iou_max)]
-        )
-        coord_true = is_obj_in * true[..., self.C + 1 : self.C + 5]
-
-        coord_pred[..., 2:4] = torch.sqrt(coord_pred[..., 2:4] + 1e-7)
-        coord_true[..., 2:4] = torch.sqrt(coord_true[..., 2:4] + 1e-7)
-
-        loss_coord = self.lambda_coord * self.sse(
-            is_obj_in * coord_pred, is_obj_in * coord_true
-        )
-
-        # Confidence Loss
-        obj_pred = idx_iou_max * pred[..., self.C + 5 * idx_iou_max]
-        loss_obj = self.sse(is_obj_in * obj_pred, is_obj_in * is_obj_in)
-
-        noobj_preds = [b * pred[..., self.C + 5 * b] for b in range(self.B)]
-        loss_noobj = self.lambda_noobj * sum(
-            [
-                self.sse((1 - is_obj_in) * noobj_pred, (1 - is_obj_in) * is_obj_in)
-                for noobj_pred in noobj_preds
-            ]
-        )
-
-        loss_conf = loss_obj + loss_noobj
-
-        # Classification Loss
-        class_pred = pred[..., :20]
-        class_true = true[..., :20]
-
-        loss_class = self.sse(is_obj_in * class_pred, is_obj_in * class_true)
-
-        return sum([loss_coord, loss_conf, loss_class])
+    area1 = (x_maxof1 - x_minof1) * (y_maxof1 - y_minof1)
+    area2 = (x_maxof2 - x_minof2) * (y_maxof2 - y_minof2)
+    intersection = (x_minofmaxes - x_maxofmins) * (y_minofmaxes - y_maxofmins)
+    return intersection / (area1 - area2 + intersection + 1e-7)
 
 
-def calculate_IoU(boxes1, bboxes2):
+def select_bbox_bycell(bboxes):
     pass
 
 
-def do_NMS(bboxes, ths, ths_iou):
-    pass
+def do_NMS(bboxes, ths_conf, ths_iou):
+    bboxes_chosen = [box for box in bboxes if box[1] > ths_conf]
+
+
+def get_bboxes(dataloader, model, ths_conf, ths_iou, batch_size, device, **kwargs):
+    bboxes_pred, bboxes_true = [], []
+
+    model.eval()
+    for data, labels in dataloader:
+        data, labels = data.to(device), labels.to(device)
+
+        with torch.no_grad:
+            preds = model(data)
 
 
 def calculate_mAP(boxes_pred, boxes_true, ths_iou):

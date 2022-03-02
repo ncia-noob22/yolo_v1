@@ -1,4 +1,3 @@
-from torch.nn import Module
 import torch.nn as nn
 
 config_network = [
@@ -23,7 +22,7 @@ config_network = [
 ]
 
 
-class ConvLayer(Module):
+class ConvLayer(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
@@ -33,7 +32,7 @@ class ConvLayer(Module):
         return self.act(self.conv(x))
 
 
-class FCLayer(Module):
+class FCLayer(nn.Module):
     def __init__(self, S, B, C):
         super().__init__()
         self.fc = nn.Sequential(
@@ -48,8 +47,8 @@ class FCLayer(Module):
         return self.fc(x)
 
 
-class YOLOv1(Module):
-    def __init__(self, S, B, C):
+class YOLOv1(nn.Module):
+    def __init__(self, S, B, C, **kwargs):
         super().__init__()
         in_channels, layers = 3, []
         for config_layer in config_network:
@@ -72,8 +71,11 @@ if __name__ == "__main__":
     ljh_dir = str(Path(__file__).parent)
     sys.path.append(ljh_dir)
 
+    import yaml
     import torchsummary
-    from config import *
 
-    model = YOLOv1(S, B, C)
+    with open("config.yaml", "r") as f:
+        config = yaml.load(f, yaml.FullLoader)
+
+    model = YOLOv1(**config)
     print(torchsummary.summary(model, (3, 448, 448)))

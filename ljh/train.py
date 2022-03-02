@@ -1,19 +1,19 @@
-import sys
-from pathlib import Path
+from tqdm import tqdm
 
-ljh_dir = str(Path(__file__).parent)
-sys.path.append(ljh_dir)
 
-import torch
-from torchvision.datasets import VOCDetection
-from torch.utils.data import DataLoader
-from model import YOLOv1
-from utils import *
+def train(trainloader, model, opt, loss, device, **kwargs):
+    loop, mean_losses = tqdm(trainloader), []
+    for batch, (data, labels) in enumerate(loop):
+        data, labels = data.to(device), labels.to(device)
 
-data_dir = "~/data/torch/VOCDetection"
+        opt.zero_grad()
 
-train_dataset07 = VOCDetection(data_dir, "2007", "train")
-valid_dataset07 = VOCDetection(data_dir, "2007", "val")
+        preds = model(data)
+        losses = loss(preds, labels)
+        mean_losses.append(losses.item())
 
-train_dataset12 = VOCDetection(data_dir, "2012", "train")
-valid_dataset12 = VOCDetection(data_dir, "2012", "val")
+        losses.backward()
+        opt.step()
+
+        loop.set_postfix(loss=losses.item())
+    print(f"Mean loss is {sum(mean_losses) / len(mean_losses)} for {batch + 1}th batch")
