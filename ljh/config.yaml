@@ -10,12 +10,12 @@ lambda_coord: 5
 lambda_noobj: .5
 
 # data
-dir_data: '/data/torch/VOCdetection'
+dir_data: "/data/torch/VOCdetection"
 year: 2007
 
 # train
 num_epoch: 135
-batch_size: 64
+batch_size: 1 # 64
 momentum: .9
 weight_decay: .0005
 

@@ -37,10 +37,10 @@ class FCLayer(nn.Module):
         super().__init__()
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(7**2 * 1024, 4096),
+            nn.Linear(7 ** 2 * 1024, 4096),
             nn.Dropout(),
             nn.LeakyReLU(0.1),
-            nn.Linear(4096, S**2 * (C + 5 * B)),
+            nn.Linear(4096, S ** 2 * (C + 5 * B)),
         )
 
     def forward(self, x):
@@ -72,10 +72,13 @@ if __name__ == "__main__":
     sys.path.append(ljh_dir)
 
     import yaml
+    import torch
     import torchsummary
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     with open("config.yaml", "r") as f:
         config = yaml.load(f, yaml.FullLoader)
 
-    model = YOLOv1(**config).to('cuda:0')
-    print(torchsummary.summary(model, (3, 448, 448),device='cuda'))
+    model = YOLOv1(**config).to(device)
+    print(torchsummary.summary(model, (3, 448, 448), device=device.split(":")[0]))

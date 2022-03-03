@@ -23,24 +23,24 @@ def calculate_IoU(bboxes1, bboxes2):
     return intersection / (area1 - area2 + intersection + 1e-7)
 
 
-def select_bbox_bycell(bboxes):
-    pass
+# def select_bbox_bycell(bboxes):
+#     pass
 
 
-def do_NMS(bboxes, ths_conf, ths_iou):
-    bboxes_chosen = [box for box in bboxes if box[1] > ths_conf]
+# def do_NMS(bboxes, ths_conf, ths_iou):
+#     bboxes_chosen = [box for box in bboxes if box[1] > ths_conf]
 
 
-def get_bboxes(dataloader, model, ths_conf, ths_iou, batch_size, device, **kwargs):
-    bboxes_pred, bboxes_true = [], []
+# def get_bboxes(dataloader, model, ths_conf, ths_iou, batch_size, device, **kwargs):
+#     bboxes_pred, bboxes_true = [], []
 
-    model.eval()
-    for data, labels in dataloader:
-        data, labels = data.to(device), labels.to(device)
+#     model.eval()
+#     for data, labels in dataloader:
+#         data, labels = data.to(device), labels.to(device)
 
-        with torch.no_grad:
-            preds = model(data)
+#         with torch.no_grad:
+#             preds = model(data)
 
 
-def calculate_mAP(boxes_pred, boxes_true, ths_iou):
-    pass
+# def calculate_mAP(boxes_pred, boxes_true, ths_iou):
+#     pass

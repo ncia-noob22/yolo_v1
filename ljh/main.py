@@ -11,7 +11,7 @@ from model import YOLOv1
 from loss import Loss
 from dataset import get_dataloaders
 from train import train
-from utils import get_bboxes, calculate_mAP
+# from utils import get_bboxes, calculate_mAP
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
         int(num_epoch * 0.55),
         int(num_epoch * 0.77),
     )
-    max_mean_avg_precision = 0
+    # max_mean_avg_precision = 0
     for epoch in range(num_epoch):
         if epoch == 0:
             lr = 1e-3
@@ -45,18 +45,23 @@ def main():
         else:
             lr = 1e-4
 
-        opt = optim.SGD(model.parameters(), lr=lr, momentum=config["momentum"], weight_decay=config["weight_decay"])
+        opt = optim.SGD(
+            model.parameters(),
+            lr=lr,
+            momentum=config["momentum"],
+            weight_decay=config["weight_decay"],
+        )
 
-#        boxes_pred, boxes_true = get_bboxes(trainloader, model, **config, device=device)
+        # boxes_pred, boxes_true = get_bboxes(trainloader, model, **config, device=device)
 
-#        mean_avg_precision = calculate_mAP(boxes_pred, boxes_true, **config)
-#        print(f"mAP is {mean_avg_precision} for {epoch}th epoch")
+        # mean_avg_precision = calculate_mAP(boxes_pred, boxes_true, **config)
+        # print(f"mAP is {mean_avg_precision} for {epoch}th epoch")
 
         train(trainloader, model, opt, loss, device)
 
-#        if mean_avg_precision > max_mean_avg_precision:
-#            max_mean_avg_precision = mean_avg_precision
-#            torch.save(model.state_dict(), "output/max_mAP.pt")
+        # if mean_avg_precision > max_mean_avg_precision:
+        #     max_mean_avg_precision = mean_avg_precision
+        #     torch.save(model.state_dict(), "output/max_mAP.pt")
 
 
 if __name__ == "__main__":

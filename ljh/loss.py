@@ -22,7 +22,7 @@ class Loss(nn.Module):
 
     def forward(self, pred, true):
         pred = pred.reshape(  # N ✕ (...) -> N ✕ S^2 ✕ (C + 5B)
-            -1, self.S**2, self.C + 5 * self.B
+            -1, self.S ** 2, self.C + 5 * self.B
         )
 
         ious = [
@@ -34,13 +34,16 @@ class Loss(nn.Module):
         ]
         ious = torch.cat([iou.unsqueeze(0) for iou in ious])
 
-        iou_max, idx_iou_max = torch.max(ious, dim=0)
-        is_obj_in = true[..., self.C]
+        _, is_responsible = torch.max(ious, dim=0)
+        is_obj_in = true[..., self.C].unsqueeze(2)
 
         # Localization Loss
         coord_pred = (
-            idx_iou_max
-            * pred[..., self.C + (1 + 5 * idx_iou_max) : self.C + (5 + 5 * idx_iou_max)]
+            is_responsible
+            * pred[
+                ...,
+                self.C + (1 + 5 * is_responsible) : self.C + (5 + 5 * is_responsible),
+            ]
         )
         coord_true = is_obj_in * true[..., self.C + 1 : self.C + 5]
 
@@ -52,7 +55,7 @@ class Loss(nn.Module):
         )
 
         # Confidence Loss
-        obj_pred = idx_iou_max * pred[..., self.C + 5 * idx_iou_max]
+        obj_pred = is_responsible * pred[..., self.C + 5 * is_responsible]
         loss_obj = self.sse(is_obj_in * obj_pred, is_obj_in * is_obj_in)
 
         noobj_preds = [b * pred[..., self.C + 5 * b] for b in range(self.B)]
@@ -72,3 +75,4 @@ class Loss(nn.Module):
         loss_class = self.sse(is_obj_in * class_pred, is_obj_in * class_true)
 
         return sum([loss_coord, loss_conf, loss_class])
+
