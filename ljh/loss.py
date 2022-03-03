@@ -34,15 +34,17 @@ class Loss(nn.Module):
         ]
         ious = torch.cat([iou.unsqueeze(0) for iou in ious])
 
-        _, is_responsible = torch.max(ious, dim=0)
+        _, idx_responsible = torch.max(ious, dim=0)
         is_obj_in = true[..., self.C].unsqueeze(2)
 
         # Localization Loss
         coord_pred = (
-            is_responsible
+            idx_responsible
             * pred[
                 ...,
-                self.C + (1 + 5 * is_responsible) : self.C + (5 + 5 * is_responsible),
+                self.C
+                + (1 + 5 * idx_responsible) : self.C
+                + (5 + 5 * idx_responsible),  # ! shape가 있어서 이렇게 불가능함
             ]
         )
         coord_true = is_obj_in * true[..., self.C + 1 : self.C + 5]
@@ -55,7 +57,7 @@ class Loss(nn.Module):
         )
 
         # Confidence Loss
-        obj_pred = is_responsible * pred[..., self.C + 5 * is_responsible]
+        obj_pred = idx_responsible * pred[..., self.C + 5 * idx_responsible]
         loss_obj = self.sse(is_obj_in * obj_pred, is_obj_in * is_obj_in)
 
         noobj_preds = [b * pred[..., self.C + 5 * b] for b in range(self.B)]

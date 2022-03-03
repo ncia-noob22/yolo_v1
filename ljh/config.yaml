@@ -10,7 +10,7 @@ lambda_coord: 5
 lambda_noobj: .5
 
 # data
-dir_data: "/data/torch/VOCdetection"
+dir_data: '/data/torch/VOCdetection'
 year: 2007
 
 # train

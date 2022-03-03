@@ -75,10 +75,10 @@ def get_dataloaders(dir_data, year, batch_size, **kwargs):
     )
 
     trainset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="train", transform=transform
+        dir_data, year=str(year), image_set="train", transform=transform, download=True
     )
     validset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="val", transform=transform
+        dir_data, year=str(year), image_set="val", transform=transform, download=True
     )
 
     trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
