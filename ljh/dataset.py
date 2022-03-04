@@ -37,7 +37,7 @@ class CustomVOCDetection(VOCDetection):
         img_w = float(target["annotation"]["size"]["width"])
         img_h = float(target["annotation"]["size"]["height"])
 
-        label = torch.zeros((7 ** 2, 25))
+        label = torch.zeros((7**2, 25))
 
         for obj in target["annotation"]["object"]:
             idx_class = classes.index(obj["name"].lower())

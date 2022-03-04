@@ -22,7 +22,7 @@ class Loss(nn.Module):
 
     def forward(self, pred, true):
         pred = pred.reshape(  # N ✕ (...) -> N ✕ S^2 ✕ (C + 5B)
-            -1, self.S ** 2, self.C + 5 * self.B
+            -1, self.S**2, self.C + 5 * self.B
         )
 
         ious = [
@@ -38,14 +38,18 @@ class Loss(nn.Module):
         is_obj_in = true[..., self.C].unsqueeze(2)
 
         # Localization Loss
-        coord_pred = (
-            idx_responsible
-            * pred[
-                ...,
-                self.C
-                + (1 + 5 * idx_responsible) : self.C
-                + (5 + 5 * idx_responsible),  # ! shape가 있어서 이렇게 불가능함
-            ]
+        idx_responsible_x = self.C + (1 + 5 * idx_responsible.unsqueeze(2))
+        idx_responsible_y = self.C + (2 + 5 * idx_responsible.unsqueeze(2))
+        idx_responsible_w = self.C + (3 + 5 * idx_responsible.unsqueeze(2))
+        idx_responsible_h = self.C + (4 + 5 * idx_responsible.unsqueeze(2))
+
+        coord_pred_x = pred.gather(-1, idx_responsible_x)
+        coord_pred_y = pred.gather(-1, idx_responsible_y)
+        coord_pred_w = pred.gather(-1, idx_responsible_w)
+        coord_pred_h = pred.gather(-1, idx_responsible_h)
+
+        coord_pred = torch.cat(
+            [coord_pred_x, coord_pred_y, coord_pred_w, coord_pred_h], -1
         )
         coord_true = is_obj_in * true[..., self.C + 1 : self.C + 5]
 
@@ -77,4 +81,3 @@ class Loss(nn.Module):
         loss_class = self.sse(is_obj_in * class_pred, is_obj_in * class_true)
 
         return sum([loss_coord, loss_conf, loss_class])
-
