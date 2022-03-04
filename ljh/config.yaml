@@ -1,4 +1,5 @@
 path_pretrained: null
+only_train: true
 
 # model
 S: 7 # num_grid

@@ -7,6 +7,8 @@ import torchvision.transforms as transforms
 
 
 class CustomVOCDetection(VOCDetection):
+    """Custom VOC Detection dataset"""
+
     def __getitem__(self, idx):
         classes = [
             "aeroplane",
@@ -37,7 +39,7 @@ class CustomVOCDetection(VOCDetection):
         img_w = float(target["annotation"]["size"]["width"])
         img_h = float(target["annotation"]["size"]["height"])
 
-        label = torch.zeros((7 ** 2, 25))
+        label = torch.zeros((7**2, 25))
 
         for obj in target["annotation"]["object"]:
             idx_class = classes.index(obj["name"].lower())
@@ -69,19 +71,27 @@ class CustomVOCDetection(VOCDetection):
         return img, label
 
 
-def get_dataloaders(dir_data, year, batch_size, **kwargs):
+def get_dataloaders(dir_data, year, batch_size, only_train, **kwargs):
     transform = transforms.Compose(
         [transforms.Resize((448, 448)), transforms.ToTensor()]
     )
 
-    trainset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="train", transform=transform
-    )
-    validset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="val", transform=transform
-    )
+    if only_train:
+        trainset = CustomVOCDetection(
+            dir_data, year=str(year), image_set="train", transform=transform
+        )
+        trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+        return trainloader, None
 
-    trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
-    validloader = data.DataLoader(validset, batch_size=batch_size, shuffle=True)
+    else:
+        trainset = CustomVOCDetection(
+            dir_data, year=str(year), image_set="train", transform=transform
+        )
+        validset = CustomVOCDetection(
+            dir_data, year=str(year), image_set="val", transform=transform
+        )
 
-    return trainloader, validloader
+        trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+        validloader = data.DataLoader(validset, batch_size=batch_size, shuffle=True)
+
+        return trainloader, validloader

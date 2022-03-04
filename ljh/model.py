@@ -23,6 +23,8 @@ config_network = [
 
 
 class ConvLayer(nn.Module):
+    """Convolutional block consisting of convolution and linear activation"""
+
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
@@ -33,6 +35,8 @@ class ConvLayer(nn.Module):
 
 
 class FCLayer(nn.Module):
+    """Fully connected block for prediction based on the paper"""
+
     def __init__(self, S, B, C):
         super().__init__()
         self.fc = nn.Sequential(
@@ -51,13 +55,18 @@ class YOLOv1(nn.Module):
     def __init__(self, S, B, C, **kwargs):
         super().__init__()
         in_channels, layers = 3, []
+
+        # form convolutional layers
         for config_layer in config_network:
             if config_layer[0] == "conv":
                 layers.append(ConvLayer(in_channels, *config_layer[1:]))
                 in_channels = config_layer[1]
             elif config_layer[0] == "maxpool":
                 layers.append(nn.MaxPool2d(*config_layer[1:]))
+
+        # form fully connected layers
         layers.append(FCLayer(S, B, C))
+
         self.model = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -65,12 +74,6 @@ class YOLOv1(nn.Module):
 
 
 if __name__ == "__main__":
-    import sys
-    from pathlib import Path
-
-    ljh_dir = str(Path(__file__).parent)
-    sys.path.append(ljh_dir)
-
     import yaml
     import torch
     import torchsummary

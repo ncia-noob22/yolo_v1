@@ -10,6 +10,11 @@ from utils import calculate_IoU
 
 
 class Loss(nn.Module):
+    """Loss function based on the paper
+
+    Loss consists of localization loss, confidence losses, and classification loss
+    """
+
     def __init__(self, S, B, C, lambda_coord, lambda_noobj, **kwargs):
         super().__init__()
         self.S = S
@@ -22,7 +27,7 @@ class Loss(nn.Module):
 
     def forward(self, pred, true):
         pred = pred.reshape(  # N ✕ (...) -> N ✕ S^2 ✕ (C + 5B)
-            -1, self.S ** 2, self.C + 5 * self.B
+            -1, self.S**2, self.C + 5 * self.B
         )
 
         ious = [
@@ -39,7 +44,7 @@ class Loss(nn.Module):
         is_obj_in = true[..., self.C].unsqueeze(2)
 
         # Localization Loss
-        coord_pred = (  #! should adjust for B > 2
+        coord_pred = (  #! need to adjust for B > 2
             idx_responsible * pred[..., 26:30]
             + (1 - idx_responsible) * pred[..., 21:25]
         )
@@ -50,7 +55,7 @@ class Loss(nn.Module):
         )
 
         # Confidence Loss
-        obj_pred = idx_responsible * pred[  #! should adjust for B > 2
+        obj_pred = idx_responsible * pred[  #! need to adjust for B > 2
             ..., 25
         ].unsqueeze(2) + (1 - idx_responsible) * pred[..., 20].unsqueeze(2)
         loss_obj = self.sse(is_obj_in * obj_pred, is_obj_in * is_obj_in)
