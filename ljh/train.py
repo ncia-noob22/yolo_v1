@@ -2,8 +2,8 @@ from tqdm import tqdm
 
 
 def train(trainloader, model, opt, sched, loss, epoch, device, **kwargs):
-    loop, mean_losses = tqdm(trainloader), []
-    for batch, (data, labels) in enumerate(loop):
+    mean_losses = []
+    for data, labels in tqdm(trainloader):
         data, labels = data.to(device), labels.to(device)
 
         opt.zero_grad()
@@ -15,6 +15,5 @@ def train(trainloader, model, opt, sched, loss, epoch, device, **kwargs):
         losses.backward()
         opt.step()
 
-        loop.set_postfix(loss=losses.item())
     print(f"Mean loss is {sum(mean_losses) / len(mean_losses)} for {epoch + 1}th epoch")
     sched.step()
