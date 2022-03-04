@@ -17,7 +17,7 @@ from train import train
 
 def main():
     # basic settings
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     with open("config.yaml", "r") as f:
         config = yaml.load(f, yaml.FullLoader)
