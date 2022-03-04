@@ -22,6 +22,7 @@ def main():
     with open("config.yaml", "r") as f:
         config = yaml.load(f, yaml.FullLoader)
     path_pretrained = config["path_pretrained"]
+    only_train = config["only_train"]
     num_epoch = config["num_epoch"]
 
     # load data loaders
@@ -59,8 +60,10 @@ def main():
     sched = optim.lr_scheduler.LambdaLR(opt, schedule_lr)
 
     # train model
-    for epoch in range(num_epoch):
-        train(trainloader, model, opt, sched, loss, epoch, device)
+    if only_train:
+        for epoch in range(num_epoch):
+            train(trainloader, model, opt, sched, loss, epoch, device)
+    #! need to add validation script
 
 
 if __name__ == "__main__":
