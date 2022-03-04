@@ -37,7 +37,7 @@ class CustomVOCDetection(VOCDetection):
         img_w = float(target["annotation"]["size"]["width"])
         img_h = float(target["annotation"]["size"]["height"])
 
-        label = torch.zeros((7**2, 25))
+        label = torch.zeros((7 ** 2, 25))
 
         for obj in target["annotation"]["object"]:
             idx_class = classes.index(obj["name"].lower())
@@ -75,10 +75,10 @@ def get_dataloaders(dir_data, year, batch_size, **kwargs):
     )
 
     trainset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="train", transform=transform, download=True
+        dir_data, year=str(year), image_set="train", transform=transform
     )
     validset = CustomVOCDetection(
-        dir_data, year=str(year), image_set="val", transform=transform, download=True
+        dir_data, year=str(year), image_set="val", transform=transform
     )
 
     trainloader = data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
