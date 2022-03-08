@@ -41,10 +41,10 @@ class FCLayer(nn.Module):
         super().__init__()
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(7**2 * 1024, 4096),
+            nn.Linear(7 ** 2 * 1024, 4096),
             nn.Dropout(),
             nn.LeakyReLU(0.1),
-            nn.Linear(4096, S**2 * (C + 5 * B)),
+            nn.Linear(4096, S ** 2 * (C + 5 * B)),
         )
 
     def forward(self, x):
