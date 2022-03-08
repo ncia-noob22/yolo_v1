@@ -19,7 +19,7 @@ def main():
     # basic settings
     device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
-    with open("config.yaml", "r") as f:
+    with open(f"{ljh_dir}/config.yaml", "r") as f:
         config = yaml.load(f, yaml.FullLoader)
     path_pretrained = config["path_pretrained"]
     only_train = config["only_train"]
