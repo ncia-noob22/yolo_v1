@@ -57,8 +57,8 @@ class CustomVOCDetection(VOCDetection):
             x = (x_center - cell_x * (448 / 7)) / (448 / 7)
             y = (y_center - cell_y * (448 / 7)) / (448 / 7)
 
-            w = (x_max - x_min) / 448
-            h = (y_max - y_min) / 448
+            w = torch.sqrt((x_max - x_min) / 448)
+            h = torch.sqrt((y_max - y_min) / 448)
 
             idx_cell = int(cell_x + 7 * cell_y)
             label[idx_cell, idx_class] = 1
